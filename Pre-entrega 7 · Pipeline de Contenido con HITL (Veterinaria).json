@@ -1,0 +1,850 @@
+{
+  "name": "Pre-entrega 7 · Pipeline de Contenido con HITL (Veterinaria)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "579f131f-801c-480c-b927-2acbbc3a7505",
+      "name": "Rama A · Ejecutar manualmente",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app45alXead5lY7HQ",
+          "mode": "list",
+          "cachedResultName": "Contenidos – Centro de Comando",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8ukcLMXRHf9JJh",
+          "mode": "list",
+          "cachedResultName": "Piezas",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ/tbl8ukcLMXRHf9JJh"
+        },
+        "filterByFormula": "AND({Idea Semilla} != '', {Estado} = BLANK())",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "855ff9a3-ca8a-456e-bd4f-0f3170ce7624",
+      "name": "Buscar idea nueva",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        144
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app45alXead5lY7HQ",
+          "mode": "list",
+          "cachedResultName": "Contenidos – Centro de Comando",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8ukcLMXRHf9JJh",
+          "mode": "list",
+          "cachedResultName": "Piezas",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ/tbl8ukcLMXRHf9JJh"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Estado": "Generando",
+            "Última ejecución": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Generando",
+                  "value": "Generando"
+                },
+                {
+                  "name": "En revisión",
+                  "value": "En revisión"
+                },
+                {
+                  "name": "Aprobado",
+                  "value": "Aprobado"
+                },
+                {
+                  "name": "Publicado",
+                  "value": "Publicado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Última ejecución",
+              "displayName": "Última ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "a278a668-4749-4d12-a204-940d8c933435",
+      "name": "Estado: Generando",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        144
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appIkCILkL3FD1Eeb",
+          "mode": "list",
+          "cachedResultName": "Clínica – Base de Conocimiento",
+          "cachedResultUrl": "https://airtable.com/appIkCILkL3FD1Eeb"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblmIW1gBP5g09naG",
+          "mode": "list",
+          "cachedResultName": "Conocimiento.",
+          "cachedResultUrl": "https://airtable.com/appIkCILkL3FD1Eeb/tblmIW1gBP5g09naG"
+        },
+        "options": {}
+      },
+      "id": "64f67019-ce15-4312-ae5b-fab2870c47e9",
+      "name": "Consultar conocimiento (RAG)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        144
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const idea = $('Buscar idea nueva').first().json;\nconst contexto = $input.all()\n  .map(i => `- ${i.json['Tema']}: ${i.json['Contenido']}`)\n  .join('\\n');\nreturn [{ json: { recordId: idea.id, idea: idea['Idea Semilla'], contexto } }];"
+      },
+      "id": "7621a180-4a25-4e19-ba26-798dad154550",
+      "name": "Armar contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Sos el redactor de contenidos de la Clínica Veterinaria y Peluquería Canina.\nUsá EXCLUSIVAMENTE la información del CONTEXTO. No agregues datos externos ni inventes servicios, precios u horarios. Si falta información, no la incluyas.\nRespetá el tono de marca indicado en el contexto.",
+              "role": "system"
+            },
+            {
+              "content": "=IDEA SEMILLA: {{ $json.idea }}\n\nCONTEXTO:\n{{ $json.contexto }}\n\nRedactá un post para LinkedIn con esta estructura:\n1) Gancho inicial (1 línea)\n2) Desarrollo (3 a 5 líneas)\n3) Llamado a la acción para pedir turno\n4) 3 hashtags\nDevolvé solo el texto del post."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2113db12-3061-4cd1-9aa7-1ac52e4b38ae",
+      "name": "OpenAI · Redactar post LinkedIn",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1152,
+        144
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app45alXead5lY7HQ",
+          "mode": "list",
+          "cachedResultName": "Contenidos – Centro de Comando",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8ukcLMXRHf9JJh",
+          "mode": "list",
+          "cachedResultName": "Piezas",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ/tbl8ukcLMXRHf9JJh"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Armar contexto').first().json.recordId }}",
+            "Borrador generado": "={{ $json.message.content }}",
+            "Estado": "En revisión",
+            "Aprobado": false,
+            "Última ejecución": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Borrador generado",
+              "displayName": "Borrador generado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Generando",
+                  "value": "Generando"
+                },
+                {
+                  "name": "En revisión",
+                  "value": "En revisión"
+                },
+                {
+                  "name": "Aprobado",
+                  "value": "Aprobado"
+                },
+                {
+                  "name": "Publicado",
+                  "value": "Publicado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobado",
+              "displayName": "Aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Última ejecución",
+              "displayName": "Última ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "6c6fd233-532e-4c71-9362-44b030b97e84",
+      "name": "PAUSA HITL · Guardar borrador (En revisión)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        144
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "12417500-6889-4423-b0ca-fabaad7a8521",
+      "name": "Rama B · Ejecutar manualmente",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app45alXead5lY7HQ",
+          "mode": "list",
+          "cachedResultName": "Contenidos – Centro de Comando",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8ukcLMXRHf9JJh",
+          "mode": "list",
+          "cachedResultName": "Piezas",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ/tbl8ukcLMXRHf9JJh"
+        },
+        "filterByFormula": "OR({Estado} = 'En revisión', {Estado} = 'En revision')",
+        "options": {}
+      },
+      "id": "f8190625-f814-428e-a307-06fc54f8a698",
+      "name": "Buscar piezas en revisión",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        464
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e75093e7-b690-4790-8c79-a50216382aef",
+              "leftValue": "={{ $json['Aprobado'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "b48fb2ef-2a75-492f-a018-a37ff01ff548",
+      "name": "FILTRO · ¿Aprobado?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app45alXead5lY7HQ",
+          "mode": "list",
+          "cachedResultName": "Contenidos – Centro de Comando",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8ukcLMXRHf9JJh",
+          "mode": "list",
+          "cachedResultName": "Piezas",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ/tbl8ukcLMXRHf9JJh"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "Estado": "Aprobado",
+            "Última ejecución": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Generando",
+                  "value": "Generando"
+                },
+                {
+                  "name": "En revisión",
+                  "value": "En revisión"
+                },
+                {
+                  "name": "Aprobado",
+                  "value": "Aprobado"
+                },
+                {
+                  "name": "Publicado",
+                  "value": "Publicado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Última ejecución",
+              "displayName": "Última ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "d7fcf2d8-5278-4cf7-9152-f4fd909011c9",
+      "name": "Estado: Aprobado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        368
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "23sC3wiC8l",
+        "text": "={{ $('FILTRO · ¿Aprobado?').item.json['Borrador generado'] }}",
+        "additionalFields": {}
+      },
+      "id": "239ac5ae-665e-4ab6-a1ae-be4755df3ea5",
+      "name": "Publicar en LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        944,
+        368
+      ],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "AnYFZEjAvXcweyxY",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "app45alXead5lY7HQ",
+          "mode": "list",
+          "cachedResultName": "Contenidos – Centro de Comando",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8ukcLMXRHf9JJh",
+          "mode": "list",
+          "cachedResultName": "Piezas",
+          "cachedResultUrl": "https://airtable.com/app45alXead5lY7HQ/tbl8ukcLMXRHf9JJh"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Estado: Aprobado').item.json.id }}",
+            "Estado": "Publicado",
+            "Última ejecución": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Generando",
+                  "value": "Generando"
+                },
+                {
+                  "name": "En revisión",
+                  "value": "En revisión"
+                },
+                {
+                  "name": "Aprobado",
+                  "value": "Aprobado"
+                },
+                {
+                  "name": "Publicado",
+                  "value": "Publicado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Última ejecución",
+              "displayName": "Última ejecución",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "29b621f4-0fe9-498f-9f0f-9770bb30fa8c",
+      "name": "Estado: Publicado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1168,
+        368
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "vcgSonbZQ7vTqbFO",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b9eee4e4-9166-470b-8d80-eec934352169",
+      "name": "Frenado · Espera validación humana",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        720,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Rama A · Generación con RAG\nIdea Semilla → Generando → consulta base de conocimiento → IA redacta → **queda en pausa (En revisión, Aprobado = false)**",
+        "height": 300,
+        "width": 1896,
+        "color": 4
+      },
+      "id": "1e1579c1-1567-4cd9-b87a-f02f5bf69fd8",
+      "name": "Nota A",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Rama B · Filtro HITL y publicación\nSolo si el checkbox **Aprobado** es true el flujo llega a LinkedIn. Si no, se frena.",
+        "height": 544,
+        "width": 1440,
+        "color": 5
+      },
+      "id": "9e6a7771-0915-4a3e-a9f9-b6033c923fe9",
+      "name": "Nota B",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        320
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Rama A · Ejecutar manualmente": {
+      "main": [
+        [
+          {
+            "node": "Buscar idea nueva",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar idea nueva": {
+      "main": [
+        [
+          {
+            "node": "Estado: Generando",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estado: Generando": {
+      "main": [
+        [
+          {
+            "node": "Consultar conocimiento (RAG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar conocimiento (RAG)": {
+      "main": [
+        [
+          {
+            "node": "Armar contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar contexto": {
+      "main": [
+        [
+          {
+            "node": "OpenAI · Redactar post LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI · Redactar post LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "PAUSA HITL · Guardar borrador (En revisión)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rama B · Ejecutar manualmente": {
+      "main": [
+        [
+          {
+            "node": "Buscar piezas en revisión",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar piezas en revisión": {
+      "main": [
+        [
+          {
+            "node": "FILTRO · ¿Aprobado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FILTRO · ¿Aprobado?": {
+      "main": [
+        [
+          {
+            "node": "Estado: Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Frenado · Espera validación humana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estado: Aprobado": {
+      "main": [
+        [
+          {
+            "node": "Publicar en LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar en LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Estado: Publicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timezone": "America/Buenos_Aires",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "4cc59b30-c208-48b0-baf3-2c9f6ac79103",
+  "meta": {
+    "instanceId": "5d226cf84e1415447149eb4f4730bbf1f68812628f79bfe999d01b1fe8e3f7db"
+  },
+  "nodeGroups": [],
+  "id": "ke1xIeOrB7Co8J6i",
+  "tags": []
+}
